@@ -24,7 +24,7 @@ def img2np(filename):
 
 def imgresize2np(filename):
 	img = load_img(filename,target_size=(args.predict_h, args.predict_w))# this is a PIL image
-	img.save("./resizenir.png")
+	img.save("../image/resizenir.png")
 	x = img_to_array(img) # this is a Numpy array with shape (3, ?, ?)
 	x = x.reshape((1,) + x.shape)  # this is a Numpy array with shape (1, 3, ?, ?)
 	x = x.astype('float32') / 255.
@@ -32,15 +32,15 @@ def imgresize2np(filename):
 	return x
 
 parser = argparse.ArgumentParser(description='Train model')
-parser.add_argument('--predict', type=str, default="./org.png")
-parser.add_argument('--gt', type=str, default="./shift.png")
+parser.add_argument('--gt', type=str, default="../image/org.png")
+parser.add_argument('--target', type=str, default="../image/blur.png")
 parser.add_argument('--predict_w', type=int, default=300)
 parser.add_argument('--predict_h', type=int, default=168)
 
 args = parser.parse_args()
 
 gt = args.gt
-predict = args.predict
+predict = args.target
 
 #compare of psnr
 img1 = imgresize2np(gt)
@@ -48,9 +48,9 @@ img2 = img2np(predict)
 print("PSNR:", PSNR2(img1,img2),"(dB)")
 
 #compare of ssim
-img_path = "./resizenir.png"
+img_path = "../image/resizenir.png"
 ssim_img1 = cv2.imread(img_path, 0)
-img_path = args.predict
+img_path = args.target
 ssim_img2 = cv2.imread(img_path, 0)
 ssim_none = measure.compare_ssim(ssim_img1, ssim_img2)
 print("SSIM:", ssim_none)
