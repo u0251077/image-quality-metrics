@@ -14,10 +14,13 @@
 
   ```bash
   # use virtualenv
-  $ pip install virtualenv venv
+  $ virtualenv venv
   $ source ./venv/bin/activate
   # install requirement
-  $ pip install -r requirements.txt
+  $ pip install keras==2.3.1
+  $ pip install tensorflow==2.1.0
+  $ pip install opencv-python==4.2.0.32
+  $ pip install scikit-image==0.14.5
   ```
 
 - metrics image & output
