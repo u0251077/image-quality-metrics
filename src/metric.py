@@ -4,13 +4,14 @@ import argparse
 from skimage import data, img_as_float
 from skimage import measure
 import cv2
+from sklearn.metrics.pairwise import cosine_similarity
 
 ## calu two image psnr
 def PSNR2(y_true, y_pred):
     assert y_true.shape == y_pred.shape, "Cannot calculate PSNR. Input shapes not same." \
                                          " y_true shape = %s, y_pred shape = %s" % (str(y_true.shape),
                                                                                    str(y_pred.shape))
-    print("Mean Square Error:",np.mean(np.square(y_pred - y_true)))
+    #print("Mean Square Error:",np.mean(np.square(y_pred - y_true)))
     return -10. * np.log10(np.mean(np.square(y_pred - y_true)))
 
 ## image file read to np array
@@ -24,33 +25,53 @@ def img2np(filename):
 
 def imgresize2np(filename):
 	img = load_img(filename,target_size=(args.predict_h, args.predict_w))# this is a PIL image
-	img.save("../image/resizenir.png")
+	img.save("/home/c95lpy/image-quality-metrics/image/resizenir.png")
 	x = img_to_array(img) # this is a Numpy array with shape (3, ?, ?)
 	x = x.reshape((1,) + x.shape)  # this is a Numpy array with shape (1, 3, ?, ?)
 	x = x.astype('float32') / 255.
 
 	return x
 
-parser = argparse.ArgumentParser(description='Train model')
-parser.add_argument('--gt', type=str, default="../image/org.png")
-parser.add_argument('--target', type=str, default="../image/blur.png")
-parser.add_argument('--predict_w', type=int, default=300)
-parser.add_argument('--predict_h', type=int, default=168)
 
-args = parser.parse_args()
+"""
+gt - ground truth image path
+predict - predict image path
 
-gt = args.gt
-predict = args.target
+"""
+class Metric ():
+	def calculatePSNR(self, gt, predict):
+		img1 = img2np(gt)
+		img2 = img2np(predict)
+		return PSNR2(img1,img2)
 
-#compare of psnr
-img1 = imgresize2np(gt)
-img2 = img2np(predict)
-print("PSNR:", PSNR2(img1,img2),"(dB)")
+	def calculateSSIM(self, gt, predict):
+		ssim_img1 = cv2.imread(gt, 1)
+		ssim_img2 = cv2.imread(predict, 1)
+		return measure.compare_ssim(ssim_img1, ssim_img2, multichannel=True)
 
-#compare of ssim
-img_path = "../image/resizenir.png"
-ssim_img1 = cv2.imread(img_path, 0)
-img_path = args.target
-ssim_img2 = cv2.imread(img_path, 0)
-ssim_none = measure.compare_ssim(ssim_img1, ssim_img2)
-print("SSIM:", ssim_none)
+	def calculateMSE(self, gt, predict):
+		img1 = img2np(gt)
+		img2 = img2np(predict)
+		return np.mean(np.square(img2 - img1))
+
+	def calculateCosSim(self, gt, predict):
+		img1 = img2np(gt)
+		img2 = img2np(predict)
+		img1=np.reshape(img1,(1,img1.shape[1]*img1.shape[2]*img1.shape[3]))
+		img2=np.reshape(img2,(1,img2.shape[1]*img2.shape[2]*img2.shape[3]))
+		cos_sim = cosine_similarity(img1,img2)
+		return cos_sim[0][0]
+
+
+gt = "./output_org20/1.jpg"
+predict = "./output_blur20/1.jpg"
+
+M = Metric()
+result = M.calculateCosSim(gt,predict)
+print("cos_sim:", result)
+result = M.calculateMSE(gt,predict)
+print("MSE:", result)
+result = M.calculatePSNR(gt,predict)
+print("PSNR:", result)
+result = M.calculateSSIM(gt,predict)
+print("SSIM:", result)
