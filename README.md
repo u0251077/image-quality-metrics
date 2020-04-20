@@ -25,19 +25,30 @@
 
 - metrics image & output
 
-  ```bash
-  $ cd ./src
-  $ python metric.py --gt ../image/org.png --target ../image/shift.png
-  >>> Using TensorFlow backend.
-  >>> Mean Square Error: 0.031699415
-  >>> PSNR: 14.989488124847412 (dB)
-  >>> SSIM: 0.5323553827937944
+  + modify code
+  ```python=
+  gt = "/home/c95lpy/image-quality-metrics/output_org20/1.jpg"
+  predict = "/home/c95lpy/image-quality-metrics/output_blur20/1.jpg"
 
-  $ python metric.py --gt ../image/org.png --target ../image/blur.png
+  M = Metric()
+  result = M.calculateCosSim(gt,predict)
+  print("cos_sim:", result)
+  result = M.calculateMSE(gt,predict)
+  print("MSE:", result)
+  result = M.calculatePSNR(gt,predict)
+  print("PSNR:", result)
+  result = M.calculateSSIM(gt,predict)
+  print("SSIM:", result)
+  ```
+  + bash
+  ```bash=
+  $ cd ./src
+  $ python metric.py 
   >>> Using TensorFlow backend.
-  >>> Mean Square Error: 0.0009565791
-  >>> PSNR: 30.192790031433105 (dB)
-  >>> SSIM: 0.9131808242642852
+  >>> ('cos_sim:', 0.28668737)
+  >>> ('MSE:', 0.019655704)
+  >>> ('PSNR:', 17.06511378288269)
+  >>> ('SSIM:', 0.2214987835228802)
   ```
 
   ​
