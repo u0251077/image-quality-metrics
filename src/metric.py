@@ -1,10 +1,11 @@
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
-import numpy as np
-import argparse
+from sklearn.metrics.pairwise import cosine_similarity
 from skimage import data, img_as_float
 from skimage import measure
+import numpy as np
+import argparse
 import cv2
-from sklearn.metrics.pairwise import cosine_similarity
+
 
 ## calu two image psnr
 def PSNR2(y_true, y_pred):
@@ -33,28 +34,67 @@ def imgresize2np(filename):
 	return x
 
 
-"""
-gt - ground truth image path
-predict - predict image path
-
-"""
 class Metric ():
 	def calculatePSNR(self, gt, predict):
+		"""Calculate PSNR function between two images.
+
+		Args:
+			gt: ground truth image path.
+			predict: predict(being compared) image path.
+
+		Returns:
+			The return float value [0,∞]. This value represents how many dB of PSNR.
+			This more large the value is , the better.
+
+		"""
 		img1 = img2np(gt)
 		img2 = img2np(predict)
 		return PSNR2(img1,img2)
 
 	def calculateSSIM(self, gt, predict):
+		"""Calculate SSIM function between two images.
+
+		Args:
+			gt: ground truth image path.
+			predict: predict(being compared) image path.
+
+		Returns:
+			The return float value [0,1]. This value represents how many Similarity of luminance, contrast and structure.
+			This more closer to 1 the value is, the better.
+
+		"""		
 		ssim_img1 = cv2.imread(gt, 1)
 		ssim_img2 = cv2.imread(predict, 1)
 		return measure.compare_ssim(ssim_img1, ssim_img2, multichannel=True)
 
 	def calculateMSE(self, gt, predict):
+		"""Calculate MSE(Mean-Square Error) function between two images.
+
+		Args:
+			gt: ground truth image path.
+			predict: predict(being compared) image path.
+
+		Returns:
+			The return float value [0,∞]. This value represents the Mean-Square Error between the two image.
+			This more closer to 0 the value is, the better.
+
+		"""			
 		img1 = img2np(gt)
 		img2 = img2np(predict)
 		return np.mean(np.square(img2 - img1))
 
 	def calculateCosSim(self, gt, predict):
+		"""Calculate cosine similarity function between two images.
+
+		Args:
+			gt: ground truth image path.
+			predict: predict(being compared) image path.
+
+		Returns:
+			The return float value [0,1]. This value represents the cosine similarity between the two image.
+			This more closer to 0 the value is, the better.
+
+		"""			
 		img1 = img2np(gt)
 		img2 = img2np(predict)
 		img1=np.reshape(img1,(1,img1.shape[1]*img1.shape[2]*img1.shape[3]))
@@ -63,8 +103,8 @@ class Metric ():
 		return cos_sim[0][0]
 
 
-gt = "./output_org20/1.jpg"
-predict = "./output_blur20/1.jpg"
+gt = "/home/c95lpy/image-quality-metrics/output_org20/1.jpg"
+predict = "/home/c95lpy/image-quality-metrics/output_blur20/1.jpg"
 
 M = Metric()
 result = M.calculateCosSim(gt,predict)
