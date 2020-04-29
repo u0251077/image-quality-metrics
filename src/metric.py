@@ -1,21 +1,21 @@
-from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
+from keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import  array_to_img
+from keras.preprocessing.image import img_to_array
+from keras.preprocessing.image import load_img
 from sklearn.metrics.pairwise import cosine_similarity
-from skimage import data, img_as_float
+from skimage import data
+from skimage import img_as_float
 from skimage import measure
 import numpy as np
 import argparse
 import cv2
 
-
-## calu two image psnr
 def PSNR2(y_true, y_pred):
     assert y_true.shape == y_pred.shape, "Cannot calculate PSNR. Input shapes not same." \
-                                         " y_true shape = %s, y_pred shape = %s" % (str(y_true.shape),
+                                             " y_true shape = %s, y_pred shape = %s" % (str(y_true.shape),
                                                                                    str(y_pred.shape))
-    #print("Mean Square Error:",np.mean(np.square(y_pred - y_true)))
     return -10. * np.log10(np.mean(np.square(y_pred - y_true)))
 
-## image file read to np array
 def img2np(filename):
 	img = load_img(filename)# this is a PIL image
 	x = img_to_array(img) # this is a Numpy array with shape (3, ?, ?)
@@ -26,7 +26,7 @@ def img2np(filename):
 
 def imgresize2np(filename):
 	img = load_img(filename,target_size=(args.predict_h, args.predict_w))# this is a PIL image
-	img.save("/home/c95lpy/image-quality-metrics/image/resizenir.png")
+	img.save("../image/resizenir.png")
 	x = img_to_array(img) # this is a Numpy array with shape (3, ?, ?)
 	x = x.reshape((1,) + x.shape)  # this is a Numpy array with shape (1, 3, ?, ?)
 	x = x.astype('float32') / 255.
@@ -35,6 +35,27 @@ def imgresize2np(filename):
 
 
 class Metric ():
+	"""There are four ways to measure metrics
+
+	Set the gt / predict image path:
+	>>> gt = "/home/c95lpy/image-quality-metrics/output_org20/1.jpg"
+	>>> predict = "/home/c95lpy/image-quality-metrics/output_blur20/1.jpg"
+
+	To use:
+	>>> M = Metric()
+	>>> result = M.calculateCosSim(gt,predict)
+	>>> print("cos_sim:", result)
+	0.978
+	>>> result = M.calculateMSE(gt,predict)
+	>>> print("MSE:", result)
+	0.0078
+	>>> result = M.calculatePSNR(gt,predict)
+	>>> print("PSNR:", result)
+	28.97
+	>>> result = M.calculateSSIM(gt,predict)
+	>>> print("SSIM:", result)
+	0.87
+	"""
 	def calculatePSNR(self, gt, predict):
 		"""Calculate PSNR function between two images.
 
@@ -43,7 +64,7 @@ class Metric ():
 			predict: predict(being compared) image path.
 
 		Returns:
-			The return float value [0,∞]. This value represents how many dB of PSNR.
+			The return float value [0,Positive infinite]. This value represents how many dB of PSNR.
 			This more large the value is , the better.
 
 		"""
@@ -75,7 +96,7 @@ class Metric ():
 			predict: predict(being compared) image path.
 
 		Returns:
-			The return float value [0,∞]. This value represents the Mean-Square Error between the two image.
+			The return float value [0,Positive  infinite]. This value represents the Mean-Square Error between the two image.
 			This more closer to 0 the value is, the better.
 
 		"""			
