@@ -27,8 +27,8 @@
 
   + modify code
   ```python=
-  gt = "/home/c95lpy/image-quality-metrics/output_org20/1.jpg"
-  predict = "/home/c95lpy/image-quality-metrics/output_blur20/1.jpg"
+  gt = "./image-quality-metrics/output_org20/1.jpg"
+  predict = "./image-quality-metrics/output_blur20/1.jpg"
 
   M = Metric()
   result = M.calculateCosSim(gt,predict)
